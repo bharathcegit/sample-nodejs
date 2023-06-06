@@ -1,0 +1,37 @@
+- name: Deploy React.js application to Heroku
+  hosts: heroku
+  gather_facts: false
+  vars:
+    heroku_app_name: "my-heroku-app"
+    heroku_api_token: "heroku-prepare-output.yml"
+    git_repository: "https://git.cloudavise.com/visops/t054/sample-nodejs.git"
+
+  tasks:
+    - name: Install Heroku CLI
+      become: true
+      apt:
+        name: heroku
+        state: present
+
+    - name: Clone Git repository
+      git:
+        repo: "{{ git_repository }}"
+        dest: "/path/to/your/react/app"
+
+    - name: Configure Heroku app
+      command: >
+        heroku git:remote --app {{ heroku_app_name }}
+      args:
+        chdir: "/path/to/your/react/app"
+
+    - name: Set Heroku environment variables
+      command: >
+        heroku config:set NODE_ENV=production --app {{ heroku_app_name }}
+      args:
+        chdir: "/path/to/your/react/app"
+
+    - name: Deploy to Heroku
+      command: >
+        git push heroku master
+      args:
+        chdir: "/path/to/your/react/app"

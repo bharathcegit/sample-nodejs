@@ -1,0 +1,45 @@
+- name: Install and Configure Heroku CLI
+  hosts: heroku
+  gather_facts: false
+
+  tasks:
+    - name: Install Heroku CLI dependencies
+      become: true
+      apt:
+        name:
+          - curl
+          - software-properties-common
+
+    - name: Add Heroku APT repository
+      become: true
+      apt_repository:
+        repo: "deb http://cli-assets.heroku.com/branches/stable/apt ./"
+
+    - name: Import Heroku CLI signing key
+      become: true
+      apt_key:
+        url: "https://cli-assets.heroku.com/apt/release.key"
+
+    - name: Update APT package cache
+      become: true
+      apt:
+        update_cache: yes
+
+    - name: Install Heroku CLI
+      become: true
+      apt:
+        name: heroku
+        state: present
+
+    - name: Configure Heroku CLI
+      command: >
+        heroku login --interactive
+
+    - name: Retrieve Heroku API key
+      shell: heroku auth:token
+      register: heroku_api_key
+      changed_when: false
+    - name: Save Heroku API key to a file
+      copy:
+        content: "{{ heroku_api_key.stdout }}"
+        dest: /opt/jenkins/workspace/VisOps/t054/sample-reactjs-app/deploy-on-heroku/heroku-prepare-output.yml
