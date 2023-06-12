@@ -13,7 +13,7 @@
 
     - name: Copy build/* to Nginx document root
       copy:
-        src: build/  
+        src: /opt/jenkins/workspace/VisOps/t054/sample-nodejs-app/deploy-on-nginx/build/index.html
         dest: /var/www/html/index.html  
         mode: '0777'  
 
