@@ -1,6 +1,6 @@
 ---
 - name: Install Node.js and npm
-  hosts: local host
+  hosts: localhost
   become: yes
 
   tasks:
