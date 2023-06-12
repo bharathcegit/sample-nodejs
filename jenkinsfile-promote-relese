@@ -1,0 +1,34 @@
+pipeline {
+    agent {
+        node {
+            label 't054-runner'
+        }
+    }
+    stages {
+        stage('Tag and Push to Docker Hub') {
+            steps {
+                script {
+                    def remoteServer = '3.89.20.192'
+                    def remoteUser = 'ubuntu'
+                    def remoteDockerImage = 'my-nodejs-image'
+                    def imageName = "bharathcehub/promote-release:${env.BUILD_NUMBER}"
+                    def latestImageName = "bharathcehub/promote-release:latest"
+                    withCredentials([
+                        usernamePassword(credentialsId: 'to54-dockerhub', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')
+                    ]) {
+                        sshagent(credentials: ['t054-ssh-key']) {
+                            sh """
+                                ssh -o StrictHostKeyChecking=no -l ${remoteUser} ${remoteServer} 'docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD &&
+                                docker tag ${remoteDockerImage}:v1 ${imageName} &&
+                                docker tag ${remoteDockerImage}:v1 ${latestImageName} &&
+                                docker push ${imageName} &&
+                                docker push ${latestImageName} &&
+                                docker logout'
+                            """
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
