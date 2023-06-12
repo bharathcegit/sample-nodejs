@@ -1,0 +1,25 @@
+---
+- name: Deploy index.html on Nginx
+  hosts: nginx 
+
+  tasks:
+    
+    - name: Create Nginx document root directory
+      become: true
+      file:
+        path: /var/www/html
+        state: directory
+        mode: '0777'
+
+    - name: Copy build/* to Nginx document root
+      copy:
+        src: build/  
+        dest: /var/www/html/index.html  
+        mode: '0777'  
+
+    - name: Restart Nginx service
+      become: true  
+      service:
+        name: nginx
+        state: restarted
+

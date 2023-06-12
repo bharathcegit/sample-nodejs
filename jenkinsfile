@@ -14,15 +14,40 @@ pipeline {
             }
         }
 
-        stage('Run Ansible') 
+        stage('Build') {
+            steps {
+                sh 'npm install'
+            }
+        }
+        
+        stage('Test') {
+            steps {
+                sh './jenkins/scripts/test.sh'
+            }
+        }
+
+        stage('Deliver') {
+            steps {
+                sh './jenkins/scripts/deliver.sh'
+            }
+        }
+     
+
+        stage('Install nginx') 
         {
             steps 
             {
                 sh 'ansible-vault decrypt --vault-id /tmp/vault-id new_key.pem'
                 sh 'chmod 400 new_key.pem'
-                sh 'ansible-playbook -i inventory install-heroku.yml'
-                sh 'ansible-playbook -i inventory deploy-on-heroku.yml'
+                sh 'ansible-playbook -i inventory install-nginx.yml'
             }
         }
+
+        stage('Deploy Build') {
+            steps {
+                sh 'ansible-playbook -i inventory deploy-nginx.yml'
+            }
+        }
+
     }
 }
