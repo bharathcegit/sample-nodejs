@@ -20,4 +20,4 @@
       command: docker build -t my-nodejs-image:v1 /home/ubuntu/
 
     - name: Run Docker container
-      command: docker run -it -d -p 8001:3000 my-nodejs-image
+      command: docker run -it -d -p 8001:3000 my-nodejs-image:v1
