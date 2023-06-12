@@ -14,9 +14,11 @@ pipeline {
             }
         }
 
-        stage('npm install') {
-            steps {
-                sh 'npm install'
+        stage('npm install') 
+        {
+            steps 
+            {
+                sh 'ansible-playbook install-npm.yml'
             }
         }
         
