@@ -1,0 +1,55 @@
+pipeline {
+    agent {
+        node {
+            label 't054-runner'
+        }
+    }
+
+    stages {
+        stage('checkout') 
+        {
+            steps 
+            {
+                git credentialsId: 'ca-git-access', branch: 'development', url: "https://git.cloudavise.com/visops/t054/sample-nodejs.git"
+            }
+        }
+
+        stage('npm install') 
+        {
+            steps 
+            {
+                sh 'ansible-playbook install-npm.yml'
+            }
+        }
+        
+        stage('Test') {
+            steps {
+                sh './jenkins/scripts/test.sh'
+            }
+        }
+
+        stage('Deliver') {
+            steps {
+                sh './jenkins/scripts/deliver.sh'
+            }
+        }
+     
+
+        stage('Install nginx') 
+        {
+            steps 
+            {
+                sh 'ansible-vault decrypt --vault-id /tmp/vault-id new_key.pem'
+                sh 'chmod 400 new_key.pem'
+                sh 'ansible-playbook -i inventory install-docker.yml'
+            }
+        }
+
+        stage('Deploy Build') {
+            steps {
+                sh 'ansible-playbook -i inventory deploy-docker.yml'
+            }
+        }
+
+    }
+}
